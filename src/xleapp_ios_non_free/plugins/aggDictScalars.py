@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from xleapp.abstract import AbstractArtifact
+from xleapp.artifacts.abstract import AbstractArtifact
 from xleapp.helpers.decorators import Search, timed
 from xleapp.report.webicons import Icon
 
@@ -16,25 +16,25 @@ class AggDictScalars(AbstractArtifact):
     @timed
     @Search('*/AggregateDictionary/ADDataStore.sqlitedb')
     def process(self):
-        fp = self.found
-        cursor = fp.cursor()
+        for fp in self.found:
+            cursor = fp.cursor()
 
-        cursor.execute(
-            """
-            select
-            date(dayssince1970*86400, 'unixepoch'),
-            key,
-            value
-            from
-            scalars
-            """,
-        )
+            cursor.execute(
+                """
+                select
+                date(dayssince1970*86400, 'unixepoch'),
+                key,
+                value
+                from
+                scalars
+                """,
+            )
 
-        all_rows = cursor.fetchall()
-        usageentries = len(all_rows)
-        data_list = []
-        if usageentries > 0:
-            for row in all_rows:
-                data_list.append((row[0], row[1], row[2]))
+            all_rows = cursor.fetchall()
+            usageentries = len(all_rows)
+            data_list = []
+            if usageentries > 0:
+                for row in all_rows:
+                    data_list.append((row[0], row[1], row[2]))
 
-            self.data = data_list
+                self.data = data_list
